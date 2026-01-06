@@ -1,0 +1,38 @@
+# Example Terraform Variables File
+# Copy this file to terraform.tfvars and customize with your values
+
+# AWS Configuration
+aws_region   = "eu-west-1"  # Ireland region
+project_name = "nginx-lb-tutorial"
+environment  = "dev"
+owner        = "YourName"
+
+# EC2 Configuration
+instance_type = "t3.micro"  # t3.micro (free tier) | t3.small | t3.medium
+key_name      = "your-aws-key-pair-name"  # REQUIRED: Your AWS EC2 key pair name
+
+# Security Configuration (IMPORTANT: Restrict in production!)
+allowed_ssh_cidr  = ["0.0.0.0/0"]  # Change to your IP: ["YOUR.IP.ADDRESS/32"]
+allowed_http_cidr = ["0.0.0.0/0"]
+
+# Load Balancing Configuration
+lb_algorithm = "round_robin"  # round_robin | least_conn | ip_hash | weighted
+
+# Weighted algorithm settings (only used if lb_algorithm = "weighted")
+server1_weight = 3
+server2_weight = 1
+
+# Monitoring
+enable_monitoring = false  # Set true for production
+
+# Advanced Options
+deploy_alb             = false  # Use AWS ALB instead of Nginx LB
+enable_auto_scaling    = false  # Enable auto-scaling groups
+backend_server_count   = 2      # Number of backend servers
+
+# Additional Tags
+additional_tags = {
+  Department = "Engineering"
+  Team       = "DevOps"
+  CostCenter = "12345"
+}
