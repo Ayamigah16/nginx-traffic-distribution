@@ -16,6 +16,29 @@ data "aws_ami" "ubuntu" {
   }
 }
 
+# Generate SSH Key Pair
+resource "tls_private_key" "ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+# Create AWS Key Pair
+resource "aws_key_pair" "deployer" {
+  key_name   = var.key_name
+  public_key = tls_private_key.ssh_key.public_key_openssh
+
+  tags = {
+    Name = "${var.project_name}-key-pair"
+  }
+}
+
+# Save private key locally
+resource "local_file" "private_key" {
+  content         = tls_private_key.ssh_key.private_key_pem
+  filename        = "${path.module}/${var.key_name}.pem"
+  file_permission = "0400"
+}
+
 # VPC
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
@@ -177,7 +200,7 @@ resource "aws_security_group" "backend_sg" {
 resource "aws_instance" "load_balancer" {
   ami                    = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  key_name               = var.key_name
+  key_name               = aws_key_pair.deployer.key_name
   subnet_id              = aws_subnet.public[0].id
   vpc_security_group_ids = [aws_security_group.lb_sg.id]
   monitoring             = var.enable_monitoring
@@ -228,7 +251,7 @@ resource "aws_eip" "load_balancer" {
 resource "aws_instance" "backend_server1" {
   ami                    = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  key_name               = var.key_name
+  key_name               = aws_key_pair.deployer.key_name
   subnet_id              = aws_subnet.public[0].id
   vpc_security_group_ids = [aws_security_group.backend_sg.id]
   monitoring             = var.enable_monitoring
@@ -259,7 +282,7 @@ resource "aws_instance" "backend_server1" {
 resource "aws_instance" "backend_server2" {
   ami                    = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
-  key_name               = var.key_name
+  key_name               = aws_key_pair.deployer.key_name
   subnet_id              = aws_subnet.public[1].id
   vpc_security_group_ids = [aws_security_group.backend_sg.id]
   monitoring             = var.enable_monitoring

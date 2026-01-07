@@ -1,5 +1,16 @@
 # Output Values - Display After Terraform Apply
 
+# SSH Key Pair Outputs
+output "ssh_private_key_path" {
+  description = "Path to the generated SSH private key"
+  value       = local_file.private_key.filename
+}
+
+output "ssh_key_name" {
+  description = "Name of the SSH key pair"
+  value       = aws_key_pair.deployer.key_name
+}
+
 # Load Balancer Outputs
 output "load_balancer_public_ip" {
   description = "Public IP address of the load balancer (Elastic IP)"
@@ -126,7 +137,11 @@ output "deployment_summary" {
 # Cost Estimation
 output "estimated_monthly_cost" {
   description = "Estimated monthly cost (USD) - rough estimate"
-  value       = "~$${3 * (var.instance_type == "t2.micro" ? 7.50 : var.instance_type == "t2.small" ? 15 : 30)} (3 instances, excl. data transfer)"
+  value = format(
+    "~$%.2f/month (3x %s instances + EBS storage)",
+    3 * (var.instance_type == "t3.micro" ? 7.50 : var.instance_type == "t3.small" ? 15.00 : 30.00) + (3 * var.root_volume_size * 0.10),
+    var.instance_type
+  )
 }
 
 # Next Steps

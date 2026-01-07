@@ -10,7 +10,7 @@ variable "aws_region" {
 variable "project_name" {
   description = "Project name used for resource naming and tagging"
   type        = string
-  default     = "nginx-lb-tutorial"
+  default     = "nginx-traffic-distribution"
 }
 
 variable "environment" {
@@ -22,7 +22,7 @@ variable "environment" {
 variable "owner" {
   description = "Owner of the infrastructure"
   type        = string
-  default     = "DevOps-Team"
+  default     = "Abraham Ayamigah"
 }
 
 # Network Configuration
